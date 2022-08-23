@@ -5,12 +5,9 @@ import com.simplesystem.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.ReflectionUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -26,7 +23,7 @@ public class TodoController {
     public ResponseEntity<TodoData> createTodo(@RequestBody TodoData todoData) {
         try {
             return new ResponseEntity<>(todoService.addTodo(todoData), HttpStatus.CREATED);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
         }
     }
@@ -36,7 +33,7 @@ public class TodoController {
         try {
             TodoData data = todoService.getTodo(id);
             return new ResponseEntity<>(todoService.updateTodo(id, fields), HttpStatus.OK);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
         }
     }
@@ -51,7 +48,7 @@ public class TodoController {
         try {
             TodoData data = todoService.getTodo(id);
             return new ResponseEntity<>(data, HttpStatus.OK);
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "UUID not found", e);
         }
     }

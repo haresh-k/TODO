@@ -22,7 +22,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public TodoData addTodo(TodoData todoData) throws IllegalArgumentException {
-        if(todoData.getStatus().equals(TodoStatus.PAST_DUE)) {
+        if (todoData.getStatus().equals(TodoStatus.PAST_DUE)) {
             throw new IllegalArgumentException("Cannot mark status as " + TodoStatus.PAST_DUE);
         }
         TodoData savedData = todoRepository.save(todoData);
@@ -37,7 +37,7 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoData getTodo(UUID id) throws IllegalArgumentException {
         Optional<TodoData> data = todoRepository.findById(id);
-        if(!data.isPresent()) {
+        if (!data.isPresent()) {
             throw new IllegalArgumentException("Data for " + id + " not available");
         }
         return todoRepository.findById(id).get();
@@ -46,8 +46,8 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoData updateTodo(UUID id, Map<Object, Object> fields) {
         Optional<TodoData> data = todoRepository.findById(id);
-        if(data.isPresent()) {
-            if(data.get().getStatus().equals(TodoStatus.PAST_DUE)) {
+        if (data.isPresent()) {
+            if (data.get().getStatus().equals(TodoStatus.PAST_DUE)) {
                 throw new IllegalArgumentException("Data for " + id + " cannot be modified");
             }
             fields.forEach((k, v) -> {
@@ -55,12 +55,12 @@ public class TodoServiceImpl implements TodoService {
                         || k.toString().equalsIgnoreCase("status")) {
                     Field field = ReflectionUtils.findField(TodoData.class, k.toString());
                     field.setAccessible(true);
-                    if(field.getType().isEnum()) {
+                    if (field.getType().isEnum()) {
                         TodoStatus status = TodoStatus.valueOf(v.toString());
                         ReflectionUtils.setField(field, data.get(), status);
                         Field doneDateField = ReflectionUtils.findField(TodoData.class, "doneDate");
                         doneDateField.setAccessible(true);
-                        if(status.equals(TodoStatus.DONE)) {
+                        if (status.equals(TodoStatus.DONE)) {
                             ReflectionUtils.setField(doneDateField, data.get(), LocalDateTime.now());
                         } else {
                             ReflectionUtils.setField(doneDateField, data.get(), null);

@@ -3,12 +3,8 @@ package com.simplesystem.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.simplesystem.constants.TodoStatus;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
 
