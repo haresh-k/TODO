@@ -1,0 +1,1 @@
+INSERT INTO todo(id, description, status, created_date, due_date, done_date) VALUES ('ca59985c-22c1-11ed-861d-0242ac120002', 'Test todo 1', 'NOT_DONE', '2021-11-11 13:23:44', '2021-11-12 13:23:44', NULL);
