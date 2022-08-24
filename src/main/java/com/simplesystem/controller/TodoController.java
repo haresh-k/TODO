@@ -1,12 +1,15 @@
 package com.simplesystem.controller;
 
+import com.simplesystem.exception.CannotUpdateStatusException;
+import com.simplesystem.exception.PastDueTodoUpdateException;
+import com.simplesystem.exception.TodoNotFoundException;
 import com.simplesystem.model.TodoData;
 import com.simplesystem.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Map;
@@ -20,22 +23,14 @@ public class TodoController {
     TodoService todoService;
 
     @PostMapping
-    public ResponseEntity<TodoData> createTodo(@RequestBody TodoData todoData) {
-        try {
-            return new ResponseEntity<>(todoService.addTodo(todoData), HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
-        }
+    public ResponseEntity<TodoData> createTodo(@RequestBody TodoData todoData) throws CannotUpdateStatusException, HttpMessageNotReadableException {
+        return new ResponseEntity<>(todoService.addTodo(todoData), HttpStatus.CREATED);
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<TodoData> updateTodo(@PathVariable("id") UUID id, @RequestBody Map<Object, Object> fields) {
-        try {
-            TodoData data = todoService.getTodo(id);
-            return new ResponseEntity<>(todoService.updateTodo(id, fields), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.toString());
-        }
+    public ResponseEntity<TodoData> updateTodo(@PathVariable("id") UUID id, @RequestBody Map<Object, Object> fields)
+            throws PastDueTodoUpdateException, TodoNotFoundException {
+        return new ResponseEntity<>(todoService.updateTodo(id, fields), HttpStatus.OK);
     }
 
     @GetMapping
@@ -44,12 +39,7 @@ public class TodoController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<TodoData> getTodo(@PathVariable("id") UUID id) {
-        try {
-            TodoData data = todoService.getTodo(id);
-            return new ResponseEntity<>(data, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "UUID not found", e);
-        }
+    public ResponseEntity<TodoData> getTodo(@PathVariable("id") UUID id) throws TodoNotFoundException {
+        return new ResponseEntity<>(todoService.getTodo(id), HttpStatus.OK);
     }
 }

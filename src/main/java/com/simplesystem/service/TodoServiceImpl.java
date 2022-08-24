@@ -1,6 +1,9 @@
 package com.simplesystem.service;
 
 import com.simplesystem.constants.TodoStatus;
+import com.simplesystem.exception.CannotUpdateStatusException;
+import com.simplesystem.exception.PastDueTodoUpdateException;
+import com.simplesystem.exception.TodoNotFoundException;
 import com.simplesystem.model.TodoData;
 import com.simplesystem.repository.TodoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,7 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoData addTodo(TodoData todoData) throws IllegalArgumentException {
         if (todoData.getStatus().equals(TodoStatus.PAST_DUE)) {
-            throw new IllegalArgumentException("Cannot mark status as " + TodoStatus.PAST_DUE);
+            throw new CannotUpdateStatusException("Cannot mark status as " + TodoStatus.PAST_DUE);
         }
         TodoData savedData = todoRepository.save(todoData);
         return savedData;
@@ -38,7 +41,7 @@ public class TodoServiceImpl implements TodoService {
     public TodoData getTodo(UUID id) throws IllegalArgumentException {
         Optional<TodoData> data = todoRepository.findById(id);
         if (!data.isPresent()) {
-            throw new IllegalArgumentException("Data for " + id + " not available");
+            throw new TodoNotFoundException("Data for " + id + " not found");
         }
         return todoRepository.findById(id).get();
     }
@@ -48,7 +51,7 @@ public class TodoServiceImpl implements TodoService {
         Optional<TodoData> data = todoRepository.findById(id);
         if (data.isPresent()) {
             if (data.get().getStatus().equals(TodoStatus.PAST_DUE)) {
-                throw new IllegalArgumentException("Data for " + id + " cannot be modified");
+                throw new PastDueTodoUpdateException("Data for " + id + " cannot be modified");
             }
             fields.forEach((k, v) -> {
                 if (k.toString().equalsIgnoreCase("description")
@@ -70,6 +73,8 @@ public class TodoServiceImpl implements TodoService {
                     }
                 }
             });
+        } else {
+            throw new TodoNotFoundException("Data for " + id + " not found");
         }
         return todoRepository.save(data.get());
     }

@@ -1,6 +1,9 @@
 package com.simplesystem.service;
 
 import com.simplesystem.constants.TodoStatus;
+import com.simplesystem.exception.CannotUpdateStatusException;
+import com.simplesystem.exception.PastDueTodoUpdateException;
+import com.simplesystem.exception.TodoNotFoundException;
 import com.simplesystem.model.TodoData;
 import com.simplesystem.repository.TodoRepository;
 import org.junit.jupiter.api.BeforeAll;
@@ -50,7 +53,7 @@ public class TodoServiceUnitTest {
         invalidPastDue.setUuid(validPastDueUuid);
         invalidPastDue.setStatus(TodoStatus.PAST_DUE);
         invalidPastDue.setDescription("Past due todo");
-        assertThrows(IllegalArgumentException.class, () -> todoService.addTodo(invalidPastDue));
+        assertThrows(CannotUpdateStatusException.class, () -> todoService.addTodo(invalidPastDue));
     }
 
     @Test
@@ -110,7 +113,7 @@ public class TodoServiceUnitTest {
         validPastDue.setDescription("Check out the description");
         when(todoRepository.findById(validUuid)).thenReturn(Optional.of(validPastDue));
         validPastDue.setStatus(finalStatus);
-        assertThrows(IllegalArgumentException.class, () -> todoService.updateTodo(validUuid, updateMap));
+        assertThrows(PastDueTodoUpdateException.class, () -> todoService.updateTodo(validUuid, updateMap));
     }
 
     @Test
@@ -153,6 +156,6 @@ public class TodoServiceUnitTest {
     void test08_getInvalidTodo() {
         UUID invalidUuid = UUID.randomUUID();
         when(todoRepository.findById(invalidUuid)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> todoService.getTodo(invalidUuid));
+        assertThrows(TodoNotFoundException.class, () -> todoService.getTodo(invalidUuid));
     }
 }
