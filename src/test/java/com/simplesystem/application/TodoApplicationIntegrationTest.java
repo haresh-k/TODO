@@ -1,16 +1,20 @@
 package com.simplesystem.application;
 
 import com.simplesystem.ApiTestBase;
+import com.simplesystem.constants.TodoStatus;
+import com.simplesystem.scheduler.TodoScheduler;
 import com.simplesystem.service.TodoService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +27,14 @@ public class TodoApplicationIntegrationTest extends ApiTestBase {
 
     String baseUrl = "/v1/todo/";
 
+    @Value("${schedular.interval}")
+    private Integer schedularInterval;
+
     @Autowired
     TodoService todoService;
+
+    @Autowired
+    TodoScheduler todoScheduler;
 
     @BeforeAll
     static void setup() {
@@ -186,5 +196,38 @@ public class TodoApplicationIntegrationTest extends ApiTestBase {
                 .andReturn();
         outputJson = super.mapFromJson(mvcResult.getResponse().getContentAsString(), List.class);
         assertEquals(4, outputJson.size());
+    }
+
+    @Test
+    void test08_todoSchedular() throws Exception {
+        Map<Object, Object> createMap = new HashMap<>();
+        String currentTimeString = LocalDateTime.now().plusSeconds(Long.valueOf(1))
+                .toString().replace("T", " ").replace(".",":");
+        currentTimeString = currentTimeString.substring(0,currentTimeString.lastIndexOf(":"));
+        createMap.put("status", "NOT_DONE");
+        createMap.put("description", "Not done todo");
+        createMap.put("dueDate", currentTimeString);
+        String inputJson = super.mapToJson(createMap);
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.post(baseUrl)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(inputJson)).andReturn();
+        assertEquals(201, mvcResult.getResponse().getStatus());
+
+        Map<String, String> outputJson = super.mapFromJson(mvcResult.getResponse().getContentAsString(), Map.class);
+        String id = outputJson.get("uuid").toString();
+
+        mvcResult = mvc.perform(MockMvcRequestBuilders.get(baseUrl + id))
+                .andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        outputJson = super.mapFromJson(mvcResult.getResponse().getContentAsString(), Map.class);
+        assertEquals(TodoStatus.NOT_DONE, TodoStatus.valueOf(outputJson.get("status")));
+
+        Thread.sleep(schedularInterval + 1000);
+        mvcResult = mvc.perform(MockMvcRequestBuilders.get(baseUrl + id))
+                .andReturn();
+        assertEquals(200, mvcResult.getResponse().getStatus());
+        outputJson = super.mapFromJson(mvcResult.getResponse().getContentAsString(), Map.class);
+        assertEquals(TodoStatus.PAST_DUE, TodoStatus.valueOf(outputJson.get("status")));
     }
 }
