@@ -4,10 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
@@ -25,10 +22,20 @@ public class LoggingAspect {
     public void applicationPointcut() {
     }
 
+    @Pointcut("within(com.simplesystem.scheduler..*)")
+    public void schedularPointcut() {
+    }
+
     @AfterThrowing(pointcut = "applicationPointcut()", throwing = "e")
     public void logAfterThrowing(JoinPoint joinPoint, Throwable e) {
         LOGGER.error("Exception in {}.{}() with cause = {}", joinPoint.getSignature().getDeclaringTypeName(),
                 joinPoint.getSignature().getName(), e.getCause() != null ? e.getCause() : "NULL");
+    }
+
+    @Before("schedularPointcut()")
+    public void logForScheduler(JoinPoint joinPoint) {
+        LOGGER.info("Running schedular - {}.{}()", joinPoint.getSignature().getDeclaringTypeName(),
+                joinPoint.getSignature().getName());
     }
 
     @Around("applicationPointcut()")

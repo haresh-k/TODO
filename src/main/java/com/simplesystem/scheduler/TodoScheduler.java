@@ -15,7 +15,7 @@ public class TodoScheduler {
     @Autowired
     TodoRepository todoRepository;
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelayString = "${schedular.interval}")
     @Transactional
     public void scheduleDueTasks() {
         todoRepository.updateDueTasks(TodoStatus.PAST_DUE, LocalDateTime.now());
