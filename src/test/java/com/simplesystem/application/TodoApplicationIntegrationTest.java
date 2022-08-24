@@ -202,8 +202,8 @@ public class TodoApplicationIntegrationTest extends ApiTestBase {
     void test08_todoSchedular() throws Exception {
         Map<Object, Object> createMap = new HashMap<>();
         String currentTimeString = LocalDateTime.now().plusSeconds(Long.valueOf(1))
-                .toString().replace("T", " ").replace(".",":");
-        currentTimeString = currentTimeString.substring(0,currentTimeString.lastIndexOf(":"));
+                .toString().replace("T", " ").replace(".", ":");
+        currentTimeString = currentTimeString.substring(0, currentTimeString.lastIndexOf(":"));
         createMap.put("status", "NOT_DONE");
         createMap.put("description", "Not done todo");
         createMap.put("dueDate", currentTimeString);

@@ -17,7 +17,7 @@ import java.io.IOException;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = TodoApplication.class)
 @AutoConfigureMockMvc
-@TestPropertySource(locations="classpath:test.properties")
+@TestPropertySource(locations = "classpath:test.properties")
 public abstract class ApiTestBase {
     @Autowired
     protected MockMvc mvc;
